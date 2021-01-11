@@ -165,6 +165,23 @@ click_snd = sound_add("knobclick.wav")
 -- End COM Radio
 
 -- AutoPilot functions
+        -- AP Mode VARs
+        function flc_callback(vertlock)
+            FLCenabled = vertlock
+            print ("ALT LOCK: " .. tostring(vertlock)) 
+        return FLCenabled    
+        end
+
+        fs2020_variable_subscribe("AUTOPILOT VERTICAL HOLD", "bool", flc_callback)        
+
+        function vs_callback(vsenabled)
+            --VSenabled = vsenabled 
+            print ("VS ENABLE: " .. tostring(vsenabled)) 
+        return VSenabled    
+        end
+
+        fs2020_variable_subscribe("AUTOPILOT FLIGHT LEVEL CHANGE", "bool", vs_callback)  
+
     -- fs2020_event("")
     function ap_click()
         fs2020_event("AP_Master")
