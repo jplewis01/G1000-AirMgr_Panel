@@ -174,7 +174,7 @@ click_snd = sound_add("knobclick.wav")
 
         function vs_callback(vsenabled)
             VSenabled = vsenabled 
-        --    print ("CALLBAck VS ENABLE: " .. tostring(vsenabled)) 
+            print ("CALLBAck VS ENABLE: " .. tostring(vsenabled)) 
         return VSenabled    
         end
 
@@ -192,7 +192,6 @@ click_snd = sound_add("knobclick.wav")
     -- fs2020_event("")
     function ap_click()
         fs2020_event("AP_Master")
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_ap")
         sound_play(click_snd)
     end
 
@@ -200,9 +199,7 @@ click_snd = sound_add("knobclick.wav")
     visible(button_ap, user_prop_get(bezel_prop))
 
     function hdg_click()
-        --AP_HDG_HOLD_ON
         fs2020_event("AP_PANEL_HEADING_HOLD")
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_hdg")
         sound_play(click_snd)
     end
 
@@ -211,7 +208,6 @@ click_snd = sound_add("knobclick.wav")
 
     function nav_click()
         fs2020_event("AP_NAV1_HOLD_ON")
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_nav")
         sound_play(click_snd)
     end
 
@@ -220,7 +216,6 @@ click_snd = sound_add("knobclick.wav")
 
     function apr_click()
         fs2020_event("AP_APR_HOLD")
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_apr")
         sound_play(click_snd)
     end
 
@@ -229,7 +224,6 @@ click_snd = sound_add("knobclick.wav")
 
     function vs_click()
         fs2020_event("AP_PANEL_VS_HOLD")
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_vs")
         sound_play(click_snd)
     end
 
@@ -245,7 +239,6 @@ click_snd = sound_add("knobclick.wav")
             fs2020_event("AP_SPD_VAR_SET", AirspeedDecimal)
             print ("Airspeed: " .. tostring(AirspeedDecimal))
         end
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_flc")
         sound_play(click_snd)
     end
 
@@ -254,7 +247,6 @@ click_snd = sound_add("knobclick.wav")
 
     function fd_click()
         fs2020_event("TOGGLE_FLIGHT_DIRECTOR")
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_fd")
         sound_play(click_snd)
     end
 
@@ -263,7 +255,6 @@ click_snd = sound_add("knobclick.wav")
 
     function alt_click()
         fs2020_event("AP_ALT_HOLD")
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_alt")
         sound_play(click_snd)
     end
 
@@ -273,7 +264,6 @@ click_snd = sound_add("knobclick.wav")
     function vnv_click()
         --MOBIFLIGHT_AS530_VNAV_Push
         fs2020_event("MOBIFLIGHT_AS530_VNAV_Push")
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_vnv")
         sound_play(click_snd)
     end
 
@@ -282,7 +272,6 @@ click_snd = sound_add("knobclick.wav")
 
     function bc_click()
         fs2020_event("AP_BC_HOLD_ON")
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_bc")
         sound_play(click_snd)
     end
 
@@ -290,7 +279,7 @@ click_snd = sound_add("knobclick.wav")
     visible(button_bc, user_prop_get(bezel_prop))
 
     function nosup_click()
-        if VSEnabled then
+        if VSenabled then
             fs2020_event("AP_VS_VAR_INC")
         elseif FLCState then 
             fs2020_event("AP_SPD_VAR_INC")
@@ -298,7 +287,6 @@ click_snd = sound_add("knobclick.wav")
         print ("UP ALT LOCK: " .. tostring(FLCState )) 
         print ("UP VS ENABLE: " .. tostring(VSenabled))
         print ("Airspeed: " .. tostring(AirspeedIndicated))
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_nose_up")
         sound_play(click_snd)
     end
 
@@ -306,7 +294,7 @@ click_snd = sound_add("knobclick.wav")
     visible(button_nosup, user_prop_get(bezel_prop))
 
     function nosdn_click()
-        if VSEnabled then
+        if VSenabled then
             fs2020_event("AP_VS_VAR_DEC")
         elseif FLCState then 
             fs2020_event("AP_SPD_VAR_DEC")
@@ -314,7 +302,6 @@ click_snd = sound_add("knobclick.wav")
         print ("DN ALT LOCK: " .. tostring(FLCState )) 
         print ("DN VS ENABLE: " .. tostring(VSenabled))
         print ("Airspeed: " .. tostring(AirspeedIndicated)) 
-        --xpl_command("sim/GPS/g1000n"..g_unitpos.."_nose_down")
         sound_play(click_snd)
     end
 
@@ -649,7 +636,6 @@ click_snd = sound_add("knobclick.wav")
         end
     end
 
-
     rng_dial = dial_add("rng_knob.png", 1292,496,65,65, range_turn)
     dial_click_rotate( rng_dial, 6)
 -- End RANGE kNOB   
@@ -675,7 +661,6 @@ click_snd = sound_add("knobclick.wav")
         end
     end
 
-
     crs_dial = dial_add("crs_knob.png", 1298,350,51,51,3, crs_turn)
     dial_click_rotate( crs_dial, 6)
 
@@ -686,25 +671,3 @@ click_snd = sound_add("knobclick.wav")
 
     button_add(nil,nil, 1315,370,13,13, crs_click)
 -- End Baro / CRS
-
-
---Old HDG Knob
-    --[[
-        function hdg_turn( direction)
-            if direction ==  -1 then
-                xpl_command("sim/GPS/g1000n"..g_unitpos.."_hdg_down")
-            elseif direction == 1 then
-                xpl_command("sim/GPS/g1000n"..g_unitpos.."_hdg_up")
-            end
-        end
-
-        hdg_dial = dial_add("hdg_knob.png", 47,340,80,80,3, hdg_turn)
-        dial_click_rotate( hdg_dial, 6)
-
-        function hdg_click()--_hdg_down
-            xpl_command("sim/GPS/g1000n"..g_unitpos.."_hdg_sync")
-            sound_play(click_snd)
-        end
-
-        button_add(nil,nil, 77,370,20,20,hdg_click)
-    --]]
