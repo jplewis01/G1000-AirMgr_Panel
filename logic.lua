@@ -166,21 +166,28 @@ click_snd = sound_add("knobclick.wav")
 
 -- AutoPilot functions
         -- AP Mode VARs
-        function flc_callback(vertlock)
-            FLCenabled = vertlock
-            print ("ALT LOCK: " .. tostring(vertlock)) 
-        return FLCenabled    
+        function flc_callback(flcstate)
+            FLCState = flcstate
+        --    print ("CALLBACK ALT LOCK: " .. tostring(flcstate)) 
+        return FLCState    
         end
 
-        fs2020_variable_subscribe("AUTOPILOT VERTICAL HOLD", "bool", flc_callback)        
-
         function vs_callback(vsenabled)
-            --VSenabled = vsenabled 
-            print ("VS ENABLE: " .. tostring(vsenabled)) 
+            VSenabled = vsenabled 
+        --    print ("CALLBAck VS ENABLE: " .. tostring(vsenabled)) 
         return VSenabled    
         end
 
-        fs2020_variable_subscribe("AUTOPILOT FLIGHT LEVEL CHANGE", "bool", vs_callback)  
+        function aspd_callback(asindicated)
+            AirspeedIndicated = asindicated 
+            --print ("Airspeed CALLBACK: " .. tostring(asindicated)) 
+        return AirspeedIndicated    
+        end
+
+        fs2020_variable_subscribe("AUTOPILOT FLIGHT LEVEL CHANGE", "bool", flc_callback)  
+        fs2020_variable_subscribe("AUTOPILOT VERTICAL HOLD", "bool", vs_callback)
+        fs2020_variable_subscribe("AIRSPEED INDICATED", "knots", aspd_callback)
+        -- AIRSPEED_INDICATED  
 
     -- fs2020_event("")
     function ap_click()
@@ -194,7 +201,7 @@ click_snd = sound_add("knobclick.wav")
 
     function hdg_click()
         --AP_HDG_HOLD_ON
-        fs2020_event("AP_HDG_HOLD")
+        fs2020_event("AP_PANEL_HEADING_HOLD")
         --xpl_command("sim/GPS/g1000n"..g_unitpos.."_hdg")
         sound_play(click_snd)
     end
@@ -230,7 +237,14 @@ click_snd = sound_add("knobclick.wav")
     visible(button_vs, user_prop_get(bezel_prop))
 
     function flc_click()
-        fs2020_event("AP_SPD_VAR_SET")
+        if FLCState then
+            fs2020_event("FLIGHT_LEVEL_CHANGE_OFF")
+        else
+            AirspeedDecimal = math.floor(AirspeedIndicated)
+            fs2020_event("FLIGHT_LEVEL_CHANGE_ON")
+            fs2020_event("AP_SPD_VAR_SET", AirspeedDecimal)
+            print ("Airspeed: " .. tostring(AirspeedDecimal))
+        end
         --xpl_command("sim/GPS/g1000n"..g_unitpos.."_flc")
         sound_play(click_snd)
     end
@@ -276,7 +290,14 @@ click_snd = sound_add("knobclick.wav")
     visible(button_bc, user_prop_get(bezel_prop))
 
     function nosup_click()
-        fs2020_event("AP_SPD_VAR_INC")
+        if VSEnabled then
+            fs2020_event("AP_VS_VAR_INC")
+        elseif FLCState then 
+            fs2020_event("AP_SPD_VAR_INC")
+        end
+        print ("UP ALT LOCK: " .. tostring(FLCState )) 
+        print ("UP VS ENABLE: " .. tostring(VSenabled))
+        print ("Airspeed: " .. tostring(AirspeedIndicated))
         --xpl_command("sim/GPS/g1000n"..g_unitpos.."_nose_up")
         sound_play(click_snd)
     end
@@ -285,7 +306,14 @@ click_snd = sound_add("knobclick.wav")
     visible(button_nosup, user_prop_get(bezel_prop))
 
     function nosdn_click()
-        fs2020_event("AP_SPD_VAR_DEC")
+        if VSEnabled then
+            fs2020_event("AP_VS_VAR_DEC")
+        elseif FLCState then 
+            fs2020_event("AP_SPD_VAR_DEC")
+        end
+        print ("DN ALT LOCK: " .. tostring(FLCState )) 
+        print ("DN VS ENABLE: " .. tostring(VSenabled))
+        print ("Airspeed: " .. tostring(AirspeedIndicated)) 
         --xpl_command("sim/GPS/g1000n"..g_unitpos.."_nose_down")
         sound_play(click_snd)
     end
