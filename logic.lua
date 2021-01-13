@@ -15,32 +15,33 @@
     Contact: Phil Lewis  jplewis02@gmail.com
 
 --]]
-display_pos = user_prop_add_enum("Display unit function","Pilot PFD,Copilot PFD,MFD","Pilot PFD","Select unit functional position")
-local g_unitpos = "1"
-local pos = user_prop_get(display_pos)
+-- PFD /MFD Selection
+    display_pos = user_prop_add_enum("Display unit function","Pilot PFD,Copilot PFD,MFD","Pilot PFD","Select unit functional position")
+    local g_unitpos = "1"
+    local pos = user_prop_get(display_pos)
 
-bezel_prop  = user_prop_add_boolean("Autopilot", true, "Show autopilot controls") -- Show or hide the autopilot controls
+    bezel_prop  = user_prop_add_boolean("Autopilot", true, "Show autopilot controls") -- Show or hide the autopilot controls
 
-if pos == "Pilot PFD" then
-    g_unitpos= "1"
-elseif pos == "Copilot PFD" then
-    g_unitpos= "2"
-else
-    g_unitpos= "3"
-end
+    if pos == "Pilot PFD" then
+        g_unitpos= "1"
+    elseif pos == "Copilot PFD" then
+        g_unitpos= "2"
+    else
+        g_unitpos= "3"
+    end
 
-if user_prop_get(bezel_prop) then
-    img_add_fullscreen("background.png")
-else
-    img_add_fullscreen("background_noap.png")
-end
+    if user_prop_get(bezel_prop) then
+        img_add_fullscreen("background.png")
+    else
+        img_add_fullscreen("background_noap.png")
+    end
+    print("g_unitpos: " .. g_unitpos)
+-- End PFD/MFD Selection
 
 -- FS2020 Top Bezel Logo
-image_id = img_add("fs2020logo.png",565,11,200,23)
-
--- g2_flag = img_add("gps_2.png", 132,260,45,44)
--- visible(g2_flag, g_unit == 2 )
-click_snd = sound_add("knobclick.wav")
+    image_id = img_add("fs2020logo.png",565,11,200,23)
+    click_snd = sound_add("knobclick.wav")
+-- End Bezel Logo
 
 --GPS DRIVES NAV1 / NAV Selected 
     function nav_selected_callback(navindex)
@@ -73,7 +74,7 @@ click_snd = sound_add("knobclick.wav")
         elseif direction == 1 then
             fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Large_INC")        
             --fs2020_event("NAV1_RADIO_WHOLE_INC")    
-            end
+        end
     end
 
     nav_dial_outer = dial_add("plain_knob_outer.png", 47,173,79,79, nav_outer_turn)
@@ -94,21 +95,24 @@ click_snd = sound_add("knobclick.wav")
 
     --Selected Nav - 1 or 2
         function nav_swap_click()
-            fs2020_event("Mobiflight.AS1000_PFD_NAV_Push") 
-            --fs2020_event("NAV1_RADIO_SWAP") -- Use this to swap active radio 
-            sound_play(click_snd)
-        end
-
+            if g_unitpos == "1" then
+                fs2020_event("Mobiflight.AS1000_PFD_NAV_Push") 
+                --fs2020_event("NAV1_RADIO_SWAP") -- Use this to swap active radio 
+                sound_play(click_snd)
+            elseif g_unitpos == "3" then
+                fs2020_event("Mobiflight.AS1000_MFD_NAV_Push") 
+                --fs2020_event("NAV1_RADIO_SWAP") -- Use this to swap active radio 
+                sound_play(click_snd)
+            end
+        end    
         button_add(nil,nil, 75,204,13,13, nav_swap_click)
     --End Selected NAV
 
     -- NAV VOL Knob add click to select ????
-        function nav_vol_press()
-            fs2020_event("Mobiflight.AS1000_PFD_NAV_Push") 
-        end
-
-        navvol_dial = button_add("vol_knob.png","vol_knob_prs.png", 62,44,50,50, nav_vol_press)
-
+    function nav_vol_press()
+        fs2020_event("Mobiflight.AS1000_PFD_NAV_Push") 
+    end 
+    navvol_dial = button_add("vol_knob.png","vol_knob_prs.png", 62,44,50,50, nav_vol_press)
 -- End NAV Radio
 
 -- COM Radio Functions
@@ -122,46 +126,53 @@ click_snd = sound_add("knobclick.wav")
     button_add(nil,"ff_button.png", 1260,107,50,32, com_ff)
 
     -- COM Radio Knob 
-    function com_outer_turn( direction)
-        if direction ==  -1 then
-            fs2020_event("Mobiflight.AS1000_PFD_COM_Large_DEC")
-            --fs2020_event("COM_RADIO_WHOLE_DEC")
-        elseif direction == 1 then
-            fs2020_event("Mobiflight.AS1000_PFD_COM_Large_INC")
-            --fs2020_event("COM_RADIO_WHOLE_INC")
+        function com_outer_turn( direction)
+            if direction ==  -1 then
+                fs2020_event("Mobiflight.AS1000_PFD_COM_Large_DEC")
+                --fs2020_event("COM_RADIO_WHOLE_DEC")
+            elseif direction == 1 then
+                fs2020_event("Mobiflight.AS1000_PFD_COM_Large_INC")
+                --fs2020_event("COM_RADIO_WHOLE_INC")
+            end
         end
-    end
-    
-    com_dial_outer = dial_add("plain_knob_outer.png", 1283,173,79,79, com_outer_turn)
-    dial_click_rotate( com_dial_outer, 6)
+        
+        com_dial_outer = dial_add("plain_knob_outer.png", 1283,173,79,79, com_outer_turn)
+        dial_click_rotate( com_dial_outer, 6)
 
-    function com_inner_turn( direction)
-        if direction ==  -1 then
-            fs2020_event("Mobiflight.AS1000_PFD_COM_Small_DEC")
-            --fs2020_event("COM_RADIO_FRACT_DEC")
-        elseif direction == 1 then
-            fs2020_event("Mobiflight.AS1000_PFD_COM_Small_INC")
-            --fs2020_event("COM_RADIO_FRACT_INC")
-        end
-    end
-
-    com_dial_inner = dial_add("plain_knob_inner.png", 1299,189,47,47, com_inner_turn)
-    dial_click_rotate( com_dial_inner, 6)
-
-    function com_swap_click()
-        fs2020_event("Mobiflight.AS1000_PFD_COM_Push")     
-        --fs2020_event("COM_STBY_RADIO_SWAP") 
-        sound_play(click_snd)
-    end
-
-    button_add(nil,nil, 1313,204,13,13, com_swap_click)
-
-    -- COM VOL Knob add click to select ????
-        function com_vol_press()
-            fs2020_event("Mobiflight.AS1000_PFD_COM_Push") 
+        function com_inner_turn( direction)
+            if direction ==  -1 then
+                fs2020_event("Mobiflight.AS1000_PFD_COM_Small_DEC")
+                --fs2020_event("COM_RADIO_FRACT_DEC")
+            elseif direction == 1 then
+                fs2020_event("Mobiflight.AS1000_PFD_COM_Small_INC")
+                --fs2020_event("COM_RADIO_FRACT_INC")
+            end
         end
 
-        comvol_dial = button_add("vol_knob.png","vol_knob_prs.png", 1299,43,50,50, com_vol_press)
+        com_dial_inner = dial_add("plain_knob_inner.png", 1299,189,47,47, com_inner_turn)
+        dial_click_rotate( com_dial_inner, 6)
+
+        --Selected Nav - 1 or 2        
+            function com_swap_click()
+                if g_unitpos == "1" then
+                    fs2020_event("Mobiflight.AS1000_PFD_COM_Push")     
+                    --fs2020_event("COM_STBY_RADIO_SWAP") 
+                    sound_play(click_snd)
+                elseif g_unitpos == "3" then
+                    fs2020_event("Mobiflight.AS1000_MFD_COM_Push")     
+                    --fs2020_event("COM_STBY_RADIO_SWAP") 
+                    sound_play(click_snd)
+                end
+            end
+        -- End Selected Nav
+
+        button_add(nil,nil, 1313,204,13,13, com_swap_click)
+
+        -- COM VOL Knob add click to select ????
+            function com_vol_press()
+                fs2020_event("Mobiflight.AS1000_PFD_COM_Push") 
+            end
+    comvol_dial = button_add("vol_knob.png","vol_knob_prs.png", 1299,43,50,50, com_vol_press)
 -- End COM Radio
 
 -- AutoPilot functions
@@ -313,92 +324,183 @@ click_snd = sound_add("knobclick.wav")
 
 -- Softkey Functions    
     -- PFD side
-        function sc_1_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_1")
-            sound_play(click_snd)
-        end
+        if g_unitpos == "1" then
+            print("In PFD Soft Keys")
+            function sc_1_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_1")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 213,852,50,32, sc_1_click)
+            button_add(nil,"uparrow_button.png", 213,852,50,32, sc_1_click)
 
-        function sc_2_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_2")
-            sound_play(click_snd)
-        end
+            function sc_2_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_2")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 297,852,50,32, sc_2_click)
+            button_add(nil,"uparrow_button.png", 297,852,50,32, sc_2_click)
 
-        function sc_3_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_3")
-            sound_play(click_snd)
-        end
+            function sc_3_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_3")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 383,852,50,32, sc_3_click)
+            button_add(nil,"uparrow_button.png", 383,852,50,32, sc_3_click)
 
-        function sc_4_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_4")
-            sound_play(click_snd)
-        end
+            function sc_4_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_4")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 468,852,50,32, sc_4_click)
+            button_add(nil,"uparrow_button.png", 468,852,50,32, sc_4_click)
 
-        function sc_5_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_5")
-            sound_play(click_snd)
-        end
+            function sc_5_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_5")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 554,852,50,32, sc_5_click)
+            button_add(nil,"uparrow_button.png", 554,852,50,32, sc_5_click)
 
-        function sc_6_click()
-            --fs2020_event("TOGGLE_GPS_DRIVES_NAV1")
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_6")
-            sound_play(click_snd)
-        end
+            function sc_6_click()
+                --fs2020_event("TOGGLE_GPS_DRIVES_NAV1")
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_6")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 640,852,50,32, sc_6_click)
+            button_add(nil,"uparrow_button.png", 640,852,50,32, sc_6_click)
 
-        function sc_7_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_7")
-            sound_play(click_snd)
-        end
+            function sc_7_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_7")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 724,852,50,32, sc_7_click)
+            button_add(nil,"uparrow_button.png", 724,852,50,32, sc_7_click)
 
-        function sc_8_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_8")
-            sound_play(click_snd)
-        end
+            function sc_8_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_8")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 808,852,50,32, sc_8_click)
+            button_add(nil,"uparrow_button.png", 808,852,50,32, sc_8_click)
 
-        function sc_9_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_9")
-            sound_play(click_snd)
-        end
+            function sc_9_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_9")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 892,852,50,32, sc_9_click)
+            button_add(nil,"uparrow_button.png", 892,852,50,32, sc_9_click)
 
-        function sc_10_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_10")
-            sound_play(click_snd)
-        end
+            function sc_10_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_10")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 979,852,50,32, sc_10_click)
+            button_add(nil,"uparrow_button.png", 979,852,50,32, sc_10_click)
 
-        function sc_11_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_11")
-            sound_play(click_snd)
-        end
+            function sc_11_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_11")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 1064,852,50,32, sc_11_click)
+            button_add(nil,"uparrow_button.png", 1064,852,50,32, sc_11_click)
 
-        function sc_12_click()
-            fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_12")
-            sound_play(click_snd)
-        end
+            function sc_12_click()
+                fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_12")
+                sound_play(click_snd)
+            end
 
-        button_add(nil,"uparrow_button.png", 1149,852,50,32, sc_12_click)
-        -- End PFD
+            button_add(nil,"uparrow_button.png", 1149,852,50,32, sc_12_click)
+    -- End PFD
     -- MFD
+        elseif g_unitpos == "3" then
+            print("In MFD Soft Keys")
+            function sc_1_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_1")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 213,852,50,32, sc_1_click)
+
+            function sc_2_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_2")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 297,852,50,32, sc_2_click)
+
+            function sc_3_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_3")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 383,852,50,32, sc_3_click)
+
+            function sc_4_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_4")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 468,852,50,32, sc_4_click)
+
+            function sc_5_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_5")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 554,852,50,32, sc_5_click)
+
+            function sc_6_click()
+                --fs2020_event("TOGGLE_GPS_DRIVES_NAV1")
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_6")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 640,852,50,32, sc_6_click)
+
+            function sc_7_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_7")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 724,852,50,32, sc_7_click)
+
+            function sc_8_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_8")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 808,852,50,32, sc_8_click)
+
+            function sc_9_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_9")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 892,852,50,32, sc_9_click)
+
+            function sc_10_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_10")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 979,852,50,32, sc_10_click)
+
+            function sc_11_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_11")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 1064,852,50,32, sc_11_click)
+
+            function sc_12_click()
+                fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_12")
+                sound_play(click_snd)
+            end
+
+            button_add(nil,"uparrow_button.png", 1149,852,50,32, sc_12_click)
+            end
+        -- End MFD
+
 
     -- End MFD
 -- End of SoftKeys
@@ -628,17 +730,32 @@ click_snd = sound_add("knobclick.wav")
 --]]
 
 -- Range Knob
-    function range_turn( direction)
-        if direction ==  -1 then
-            fs2020_event("Mobiflight.AS1000_PFD_RANGE_DEC")
-        elseif direction == 1 then
-            fs2020_event("Mobiflight.AS1000_PFD_RANGE_INC")  
+    -- PFD
+        if g_unitpos == "1" then
+            function pfd_range_turn( direction)
+                if direction ==  -1 then
+                    fs2020_event("Mobiflight.AS1000_PFD_RANGE_DEC")
+                elseif direction == 1 then
+                    fs2020_event("Mobiflight.AS1000_PFD_RANGE_INC")  
+                end
+            end        
+    --End PFD
+    -- MFD
+        elseif g_unitpos == "3" then
+            function mfd_range_turn( direction)
+                if direction ==  -1 then
+                    fs2020_event("Mobiflight.AS1000_MFD_RANGE_DEC")
+                elseif direction == 1 then
+                    fs2020_event("Mobiflight.AS1000_MFD_RANGE_INC")  
+                end
+            end
+    --End MFD
         end
-    end
-
-    rng_dial = dial_add("rng_knob.png", 1292,496,65,65, range_turn)
-    dial_click_rotate( rng_dial, 6)
--- End RANGE kNOB   
+    pfdrng_dial = dial_add("rng_knob.png", 1292,496,65,65, pfd_range_turn)
+    mfdrng_dial = dial_add("rng_knob.png", 1292,496,65,65, mfd_range_turn)
+    dial_click_rotate( pfdrng_dial, 6)
+    dial_click_rotate( mfdrng_dial, 6)
+-- End Range Knob
 
 -- Barometric / CRS Knob
     function baro_turn( direction)
