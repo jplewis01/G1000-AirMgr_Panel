@@ -35,7 +35,7 @@
     else
         img_add_fullscreen("background_noap.png")
     end
-    print("g_unitpos: " .. g_unitpos)
+    --print("g_unitpos: " .. g_unitpos)
 -- End PFD/MFD Selection
 
 -- FS2020 Top Bezel Logo
@@ -45,11 +45,12 @@
 
 --GPS DRIVES NAV1 / NAV Selected 
     function nav_selected_callback(navindex)
-        print ("Nav Selected Index".. navindex)
+        return navindex
     end
 
     function gps_selected_callback(gpsbool)
-        print ("GPS Selected State :"..  tostring(gpsbool))
+        --print ("GPS Selected State :"..  tostring(gpsbool))
+        return gpsbool
     end
 
     fs2020_variable_subscribe("AUTOPILOT NAV SELECTED", "Number", nav_selected_callback)
@@ -69,11 +70,11 @@
     -- Nav Radio Knob
     function nav_outer_turn( direction)
         if direction ==  -1 then
-            fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Large_DEC")
             --fs2020_event("NAV1_RADIO_WHOLE_DEC")
+            fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Large_DEC")
         elseif direction == 1 then
-            fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Large_INC")        
-            --fs2020_event("NAV1_RADIO_WHOLE_INC")    
+            --fs2020_event("NAV1_RADIO_WHOLE_INC")
+            fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Large_INC")            
         end
     end
 
@@ -177,9 +178,6 @@
 
 -- Altitude Target Knob
     function alt_callback(altitude)
-        -- Prints the altitude in the debug window
-        print("Current altitude: " .. altitude)
-        
         --fs2020_event("AP_ALT_VAR_SET_ENGLISH",altitude)
         TargetAlt = altitude
         return TargetAlt 
@@ -191,13 +189,9 @@
         StepVal = 1000
         -- Direction will have the value
         if direction == 1 then
-            print ("clockwise")
             TargetAlt =  TargetAlt + StepVal
-            print ("Target Alt+" .. TargetAlt)
         elseif direction == -1 then
-            print ("Counter-clockwise")
-            TargetAlt =  TargetAlt - StepVal
-            print ("Target Alt-" .. TargetAlt)   
+            TargetAlt =  TargetAlt - StepVal   
         end
         fs2020_event("AP_ALT_VAR_SET_ENGLISH",TargetAlt)   
     end
@@ -205,13 +199,9 @@
     function alt_small_callback(direction)
         StepVal = 100    -- altdirection will have the value
         if direction == 1 then
-            print ("clockwise")
             TargetAlt =  TargetAlt + StepVal
-            print ("Target Alt+" .. TargetAlt)
         elseif direction == -1 then
-            print ("Counter-clockwise")
-            TargetAlt =  TargetAlt - StepVal
-            print ("Target Alt-" .. TargetAlt)    
+            TargetAlt =  TargetAlt - StepVal    
         end
         fs2020_event("AP_ALT_VAR_SET_ENGLISH",TargetAlt)       
     end
@@ -246,20 +236,17 @@
 -- AutoPilot functions
         -- AP Mode VARs
         function flc_callback(flcstate)
-            FLCState = flcstate
-        --    print ("CALLBACK ALT LOCK: " .. tostring(flcstate)) 
+            FLCState = flcstate 
         return FLCState    
         end
 
         function vs_callback(vsenabled)
-            VSenabled = vsenabled 
-            print ("CALLBAck VS ENABLE: " .. tostring(vsenabled)) 
+            VSenabled = vsenabled  
         return VSenabled    
         end
 
         function aspd_callback(asindicated)
-            AirspeedIndicated = asindicated 
-            --print ("Airspeed CALLBACK: " .. tostring(asindicated)) 
+            AirspeedIndicated = asindicated  
         return AirspeedIndicated    
         end
 
@@ -316,7 +303,6 @@
             AirspeedDecimal = math.floor(AirspeedIndicated)
             fs2020_event("FLIGHT_LEVEL_CHANGE_ON")
             fs2020_event("AP_SPD_VAR_SET", AirspeedDecimal)
-            print ("Airspeed: " .. tostring(AirspeedDecimal))
         end
         sound_play(click_snd)
     end
@@ -363,9 +349,6 @@
         elseif FLCState then 
             fs2020_event("AP_SPD_VAR_INC")
         end
-        print ("UP ALT LOCK: " .. tostring(FLCState )) 
-        print ("UP VS ENABLE: " .. tostring(VSenabled))
-        print ("Airspeed: " .. tostring(AirspeedIndicated))
         sound_play(click_snd)
     end
 
@@ -377,10 +360,7 @@
             fs2020_event("AP_VS_VAR_DEC")
         elseif FLCState then 
             fs2020_event("AP_SPD_VAR_DEC")
-        end
-        print ("DN ALT LOCK: " .. tostring(FLCState )) 
-        print ("DN VS ENABLE: " .. tostring(VSenabled))
-        print ("Airspeed: " .. tostring(AirspeedIndicated)) 
+        end 
         sound_play(click_snd)
     end
 
@@ -818,7 +798,6 @@
 
     function crs_turn( direction)
         if direction ==  -1 then
-            print("In CRS")
             fs2020_event("MOBIFLIGHT.AS1000_PFD_CRS_DEC")
         elseif direction == 1 then
             fs2020_event("MOBIFLIGHT.AS1000_PFD_CRS_INC")
