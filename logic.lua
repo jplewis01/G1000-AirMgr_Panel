@@ -175,6 +175,74 @@
     comvol_dial = button_add("vol_knob.png","vol_knob_prs.png", 1299,43,50,50, com_vol_press)
 -- End COM Radio
 
+-- Altitude Target Knob
+    function alt_callback(altitude)
+        -- Prints the altitude in the debug window
+        print("Current altitude: " .. altitude)
+        
+        --fs2020_event("AP_ALT_VAR_SET_ENGLISH",altitude)
+        TargetAlt = altitude
+        return TargetAlt 
+    end
+
+    fs2020_variable_subscribe("AUTOPILOT ALTITUDE LOCK VAR", "feet", alt_callback)
+
+    function alt_large_callback(direction)
+        StepVal = 1000
+        -- Direction will have the value
+        if direction == 1 then
+            print ("clockwise")
+            TargetAlt =  TargetAlt + StepVal
+            print ("Target Alt+" .. TargetAlt)
+        elseif direction == -1 then
+            print ("Counter-clockwise")
+            TargetAlt =  TargetAlt - StepVal
+            print ("Target Alt-" .. TargetAlt)   
+        end
+        fs2020_event("AP_ALT_VAR_SET_ENGLISH",TargetAlt)   
+    end
+
+    function alt_small_callback(direction)
+        StepVal = 100    -- altdirection will have the value
+        if direction == 1 then
+            print ("clockwise")
+            TargetAlt =  TargetAlt + StepVal
+            print ("Target Alt+" .. TargetAlt)
+        elseif direction == -1 then
+            print ("Counter-clockwise")
+            TargetAlt =  TargetAlt - StepVal
+            print ("Target Alt-" .. TargetAlt)    
+        end
+        fs2020_event("AP_ALT_VAR_SET_ENGLISH",TargetAlt)       
+    end
+
+    alt_dial_outer = dial_add("plain_knob_outer.png", 47,793,79,79, alt_large_callback)
+    dial_click_rotate( alt_dial_outer, 6)
+
+    alt_dial_inner = dial_add("plain_knob_inner.png", 63,809,47,47, alt_small_callback)
+    dial_click_rotate( alt_dial_inner, 6)
+-- End Altitude Target Knob
+
+-- Heading Knob
+    function hdg_turn( direction)
+        if direction ==  -1 then
+            fs2020_event("HEADING_BUG_DEC")
+        elseif direction == 1 then
+            fs2020_event("HEADING_BUG_INC")
+        end
+    end
+
+    hdg_dial = dial_add("hdg_knob.png", 47,340,80,80,3, hdg_turn)
+    dial_click_rotate( hdg_dial, 6)
+
+    function hdg_click()--_hdg_down
+        fs2020_event("AP_HDG_HOLD")
+        sound_play(click_snd)
+    end
+
+    button_add(nil,nil, 77,370,20,20,hdg_click)
+-- End Heading Knob
+
 -- AutoPilot functions
         -- AP Mode VARs
         function flc_callback(flcstate)
@@ -506,135 +574,97 @@
 -- End of SoftKeys
 
 -- FMS Functions
-    -- DIRECT TO    
-    function dir_click()
-        fs2020_event("MobiFlight.AS1000_PFD_DIRECTTO")
-        sound_play(click_snd)
-    end
-
-    button_add(nil,"dir_button.png", 1262,621,50,32, dir_click)
+    -- DIRECT TO
+        function dir_click()
+            if g_unitpos == "1" then  
+                fs2020_event("MobiFlight.AS1000_PFD_DIRECTTO")
+            elseif g_unitpos == "3" then
+                fs2020_event("MobiFlight.AS1000_MFD_DIRECTTO")
+            end
+            sound_play(click_snd)
+        end
+        button_add(nil,"dir_button.png", 1262,621,50,32, dir_click)
 
     -- MENU
-    function menu_click()
-        fs2020_event("MobiFlight.AS1000_PFD_MENU_Push")
-        sound_play(click_snd)
-    end
-
-    button_add(nil,"menu_button.png", 1334,621,50,32, menu_click)
+        function menu_click()
+            if g_unitpos == "1" then          
+                fs2020_event("MobiFlight.AS1000_PFD_MENU_Push")
+            elseif g_unitpos == "3" then
+                fs2020_event("MobiFlight.AS1000_MFD_MENU_Push")
+            end
+            sound_play(click_snd)
+        end
+        button_add(nil,"menu_button.png", 1334,621,50,32, menu_click)
 
     -- FPL
-    function fpl_click()
-        fs2020_event("MobiFlight.AS1000_PFD_FPL_Push")
-        sound_play(click_snd)
-    end
-
-    button_add(nil,"fpl_button.png", 1262,673,50,32, fpl_click)
+        function fpl_click()
+            if g_unitpos == "1" then          
+                fs2020_event("MobiFlight.AS1000_PFD_FPL_Push")
+            elseif g_unitpos == "3" then
+                fs2020_event("MobiFlight.AS1000_MFD_FPL_Push")
+            end            
+            sound_play(click_snd)
+        end
+        button_add(nil,"fpl_button.png", 1262,673,50,32, fpl_click)
 
     -- PROC
-    function proc_click()
-        fs2020_event("MobiFlight.AS1000_PFD_PROC_Push")
-        sound_play(click_snd)
-    end
-
-    button_add(nil,"proc_button.png", 1334,673,50,32, proc_click)
+        function proc_click()
+            if g_unitpos == "1" then            
+                fs2020_event("MobiFlight.AS1000_PFD_PROC_Push")
+            elseif g_unitpos == "3" then
+                fs2020_event("MobiFlight.AS1000_MFD_PROC_Push")       
+            end
+            sound_play(click_snd)
+        end
+        button_add(nil,"proc_button.png", 1334,673,50,32, proc_click)
 
     -- CLR
-    function clr_click_down()
-        fs2020_event("MobiFlight.AS1000_PFD_CLR")
-        sound_play(click_snd)
-    end
+        function clr_click_down()
+            if g_unitpos == "1" then         
+                fs2020_event("MobiFlight.AS1000_PFD_CLR")
+            elseif g_unitpos == "3" then
+                fs2020_event("MobiFlight.AS1000_MFD_CLR")            
+            end
+            sound_play(click_snd)
+        end
 
-    function clr_click_up()
-        fs2020_event("MobiFlight.AS1000_PFD_CLR")
-        sound_play(click_snd)
-    end
-
-    button_add(nil,"clr_button.png", 1262,725,50,32, clr_click_down, clr_click_up)
+        function clr_click_up()
+            if g_unitpos == "1" then         
+                fs2020_event("MobiFlight.AS1000_PFD_CLR")
+            elseif g_unitpos == "3" then
+                fs2020_event("MobiFlight.AS1000_MFD_CLR")            
+            end
+            sound_play(click_snd)
+        end
+        button_add(nil,"clr_button.png", 1262,725,50,32, clr_click_down, clr_click_up)
 
     -- ENT
-    function ent_click()
-        fs2020_event("MobiFlight.AS1000_PFD_ENT_Push")
-        sound_play(click_snd)
-    end
+        function ent_click()
+            if g_unitpos == "1" then 
+                fs2020_event("MobiFlight.AS1000_PFD_ENT_Push")
+            elseif g_unitpos == "3" then    
+                fs2020_event("MobiFlight.AS1000_MFD_ENT_Push")        
+            end
+            sound_play(click_snd)
+        end
 
     button_add(nil,"ent_button.png", 1334,725,50,32, ent_click)
 --End of FMS Functions
 
--- Altitude Target Knob
-    function alt_callback(altitude)
-        -- Prints the altitude in the debug window
-        print("Current altitude: " .. altitude)
-        
-        --fs2020_event("AP_ALT_VAR_SET_ENGLISH",altitude)
-        TargetAlt = altitude
-        return TargetAlt 
-    end
-
-    fs2020_variable_subscribe("AUTOPILOT ALTITUDE LOCK VAR", "feet", alt_callback)
-
-
-    function alt_large_callback(direction)
-        StepVal = 1000
-        -- Direction will have the value
-        if direction == 1 then
-            print ("clockwise")
-            TargetAlt =  TargetAlt + StepVal
-            print ("Target Alt+" .. TargetAlt)
-        elseif direction == -1 then
-            print ("Counter-clockwise")
-            TargetAlt =  TargetAlt - StepVal
-            print ("Target Alt-" .. TargetAlt)   
-        end
-        fs2020_event("AP_ALT_VAR_SET_ENGLISH",TargetAlt)   
-    end
-
-    function alt_small_callback(direction)
-        StepVal = 100    -- altdirection will have the value
-        if direction == 1 then
-            print ("clockwise")
-            TargetAlt =  TargetAlt + StepVal
-            print ("Target Alt+" .. TargetAlt)
-        elseif direction == -1 then
-            print ("Counter-clockwise")
-            TargetAlt =  TargetAlt - StepVal
-            print ("Target Alt-" .. TargetAlt)    
-        end
-        fs2020_event("AP_ALT_VAR_SET_ENGLISH",TargetAlt)       
-    end
-
-    alt_dial_outer = dial_add("plain_knob_outer.png", 47,793,79,79, alt_large_callback)
-    dial_click_rotate( alt_dial_outer, 6)
-
-    alt_dial_inner = dial_add("plain_knob_inner.png", 63,809,47,47, alt_small_callback)
-    dial_click_rotate( alt_dial_inner, 6)
--- End Altitude Target Knob
-
--- Heading Knob
-    function hdg_turn( direction)
-        if direction ==  -1 then
-            fs2020_event("HEADING_BUG_DEC")
-        elseif direction == 1 then
-            fs2020_event("HEADING_BUG_INC")
-        end
-    end
-
-    hdg_dial = dial_add("hdg_knob.png", 47,340,80,80,3, hdg_turn)
-    dial_click_rotate( hdg_dial, 6)
-
-    function hdg_click()--_hdg_down
-        fs2020_event("AP_HDG_HOLD")
-        sound_play(click_snd)
-    end
-
-    button_add(nil,nil, 77,370,20,20,hdg_click)
--- End Heading Knob
-
 -- FMS
     function fms_outer_turn( direction)
-        if direction ==  -1 then
-            fs2020_event("MOBIFLIGHT.AS1000_PFD_FMS_Lower_DEC")
-        elseif direction == 1 then
-            fs2020_event("MOBIFLIGHT.AS1000_PFD_FMS_Lower_INC")
+        if g_unitpos == "1" then
+            if direction ==  -1 then
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_FMS_Lower_DEC")
+            elseif direction == 1 then
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_FMS_Lower_INC")
+            end
+        elseif g_unitpos == "3" then
+            if direction ==  -1 then
+                fs2020_event("MOBIFLIGHT.AS1000_MFD_FMS_Lower_DEC")
+            elseif direction == 1 then
+                fs2020_event("MOBIFLIGHT.AS1000_MFD_FMS_Lower_INC")
+            end
         end
     end
 
@@ -642,12 +672,22 @@
     dial_click_rotate( fms_dial_outer, 6)
 
     function fms_inner_turn( direction)
-        if direction ==  -1 then
-            print ("FMS Inner CCW Turn -")
-            fs2020_event("MOBIFLIGHT.AS1000_PFD_FMS_Upper_DEC")
-        elseif direction == 1 then
-            print ("FMS Inner CW Turn +")
-            fs2020_event("MOBIFLIGHT.AS1000_PFD_FMS_Upper_INC")
+        if g_unitpos == "1" then
+            if direction ==  -1 then
+                print ("FMS Inner CCW Turn -")
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_FMS_Upper_DEC")
+            elseif direction == 1 then
+                print ("FMS Inner CW Turn +")
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_FMS_Upper_INC")
+            end
+        elseif g_unitpos == "3" then
+            if direction ==  -1 then
+                print ("FMS Inner CCW Turn -")
+                fs2020_event("MOBIFLIGHT.AS1000_MFD_FMS_Upper_DEC")
+            elseif direction == 1 then
+                print ("FMS Inner CW Turn +")
+                fs2020_event("MOBIFLIGHT.AS1000_MFD_FMS_Upper_INC")
+            end
         end
     end
 
@@ -655,12 +695,19 @@
     dial_click_rotate( fms_dial_outer, 6)
 
     function cursor_click()
-        fs2020_event("MOBIFLIGHT.AS1000_PFD_FMS_Upper_PUSH")
+        if g_unitpos == "1" then
+            fs2020_event("MOBIFLIGHT.AS1000_PFD_FMS_Upper_PUSH")
+        elseif g_unitpos == "3" then  
+            fs2020_event("MOBIFLIGHT.AS1000_MFD_FMS_Upper_PUSH")
+        end                  
         sound_play(click_snd)
     end
 
     button_add(nil,nil, 1311,821,13,13, cursor_click)
 -- End of FMS
+
+
+
 
 --[[
 -- Pan pallette
