@@ -16,7 +16,7 @@
 
 --]]
 -- PFD /MFD Selection
-    displayunit_type = user_prop_add_boolean("Display Unit-Type", true, "Display the instrument type on the LCD") -- Show or hide the unit type onscreen
+    displayunit_label = user_prop_add_boolean("Display Unit Label", true, "Display the instrument type label on the LCD") -- Show or hide the unit type onscreen
     display_pos = user_prop_add_enum("Display unit function","Pilot PFD,Copilot PFD,MFD","Pilot PFD","Select unit functional position")
     local g_unitpos = "1"
     local pos = user_prop_get(display_pos)
@@ -40,12 +40,12 @@
     --print("g_unitpos: " .. g_unitpos)
     
     -- Show the G1000 Unit Type 
-    if displayunit_type then
+    if user_prop_get(displayunit_label) then
         if g_unitpos == "1" then
-            print("in display unit PFD")
+            --print("in display unit PFD")
             image_pfd = img_add("pfd.png",195,110,40,30)
         elseif g_unitpos == "3" then
-            print("in display unit MFD")
+            --print("in display unit MFD")
             image_mfd = img_add("mfd.png",195,110,40,30)
         end
     end
@@ -387,7 +387,6 @@
 -- Softkey Functions    
     -- PFD side
         if g_unitpos == "1" then
-            print("In PFD Soft Keys")
             function sc_1_click()
                 fs2020_event("MobiFlight.AS1000_PFD_SOFTKEYS_1")
                 sound_play(click_snd)
@@ -475,7 +474,6 @@
     -- End PFD
     -- MFD
         elseif g_unitpos == "3" then
-            print("In MFD Soft Keys")
             function sc_1_click()
                 fs2020_event("MobiFlight.AS1000_MFD_SOFTKEYS_1")
                 sound_play(click_snd)
