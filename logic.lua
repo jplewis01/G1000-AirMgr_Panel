@@ -22,7 +22,9 @@
     local pos = user_prop_get(display_pos)
 
     bezel_prop  = user_prop_add_boolean("Autopilot", true, "Show autopilot controls") -- Show or hide the autopilot controls
-
+    -- Altimeter Setting - Preovides a way for the user to decide which Altimeter reference to adjust withthe Baro Knob
+    set_alt = user_prop_add_enum("Set Altimeter","Kohlsman,G1000,Both","Kohlsman","Choose Altimeter reference to set with the Baro Knob")
+    
     if pos == "Pilot PFD" then
         g_unitpos= "1"
     elseif pos == "Copilot PFD" then
@@ -39,18 +41,19 @@
 
     --print("g_unitpos: " .. g_unitpos)
     
-    -- Show the G1000 Unit Type 
-    if user_prop_get(displayunit_label) then
-        if g_unitpos == "1" then
-            --print("in display unit PFD")
-            image_pfd = img_add("pfd.png",195,110,40,30)
-        elseif g_unitpos == "3" then
-            --print("in display unit MFD")
-            image_mfd = img_add("mfd.png",195,110,40,30)
-        end
+-- Show the G1000 Unit Type 
+if user_prop_get(displayunit_label) then
+    if g_unitpos == "1" then
+        --print("in display unit PFD")
+        image_pfd = img_add("pfd.png",195,110,40,30)
+    elseif g_unitpos == "3" then
+        --print("in display unit MFD")
+        image_mfd = img_add("mfd.png",195,110,40,30)
     end
-    
+end
 -- End PFD/MFD Selection
+
+
 
 -- FS2020 Top Bezel Logo
     image_id = img_add("fs2020logo.png",565,11,200,23)
@@ -798,10 +801,26 @@
 
 -- Barometric / CRS Knob
     function baro_turn( direction)
-        if direction ==  -1 then
-            fs2020_event("KOHLSMAN_DEC") 
-        elseif direction == 1 then
-            fs2020_event("KOHLSMAN_INC") 
+        if user_prop_get(set_altimeter) == "Kohlsman" then
+            if direction ==  -1 then
+                fs2020_event("KOHLSMAN_DEC") 
+            elseif direction == 1 then
+                fs2020_event("KOHLSMAN_INC") 
+            end
+        elseif user_prop_get(set_altimeter) == "G1000" then
+            if direction ==  -1 then
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_BARO_DEC") 
+            elseif direction == 1 then
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_BARO_INC") 
+            end
+        else -- Set Both Kohlsman & G1000
+            if direction ==  -1 then
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_BARO_DEC") 
+                fs2020_event("KOHLSMAN_DEC") 
+            elseif direction == 1 then
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_BARO_INC") 
+                fs2020_event("KOHLSMAN_INC") 
+            end
         end
     end
 
