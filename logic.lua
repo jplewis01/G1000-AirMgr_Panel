@@ -70,8 +70,15 @@ end
         return gpsbool
     end
 
+    function ap_heading_bug_callback(heading)   
+        HDG_Degrees = heading
+        --print("CB Heading:" .. tostring(heading))
+        return HDG_Degrees
+    end
+
     fs2020_variable_subscribe("AUTOPILOT NAV SELECTED", "Number", nav_selected_callback)
     fs2020_variable_subscribe("GPS DRIVES NAV1", "boolean", gps_selected_callback)
+    fs2020_variable_subscribe("AUTOPILOT HEADING LOCK DIR", "Degrees", ap_heading_bug_callback)
 --End of GPS Selected
 
 -- NAV Radio Functions
@@ -266,7 +273,7 @@ end
             end
             com_vol_dial_turn = dial_add("vol_knob.png", 1299,43,50,50, com_vol_turn)    
             --comvol_dial = button_add("vol_knob.png","vol_knob_prs.png", 1299,43,50,50, com_vol_press)
-    -- End COM Radio
+-- End COM Radio
 
 -- Altitude Target Knob
     function alt_callback(altitude)
@@ -274,7 +281,6 @@ end
         TargetAlt = altitude
         return TargetAlt 
     end
-
     fs2020_variable_subscribe("AUTOPILOT ALTITUDE LOCK VAR", "feet", alt_callback)
 
     function alt_large_callback(direction)
@@ -297,7 +303,6 @@ end
         end
         fs2020_event("AP_ALT_VAR_SET_ENGLISH",TargetAlt)       
     end
-
     alt_dial_outer = dial_add("plain_knob_outer.png", 47,793,79,79, alt_large_callback)
     dial_click_rotate( alt_dial_outer, 6)
 
@@ -306,15 +311,54 @@ end
 -- End Altitude Target Knob
 
 -- Heading Knob
-    function hdg_turn( direction)
+    function hdg_turn_inner( direction)
         if direction ==  -1 then
-            fs2020_event("HEADING_BUG_DEC")
+            HDG_Degrees = HDG_Degrees - 1
+            if HDG_Degrees <= 0 then
+                NewHdg = 360
+            else
+                NewHdg = HDG_Degrees
+            end
+            print("Heading Degrees CCW: " .. tostring(HDG_Degrees))
+            print("New Heading: " .. tostring(NewHdg)) 
+            fs2020_event("HEADING_BUG_SET", NewHdg)
         elseif direction == 1 then
-            fs2020_event("HEADING_BUG_INC")
+            HDG_Degrees = HDG_Degrees + 1
+            if HDG_Degrees >= 361 then
+                NewHdg = HDG_Degrees - 360
+            else
+                NewHdg = HDG_Degrees
+            end
+            print("Heading Degrees CW: " .. tostring(HDG_Degrees))
+            print("New Heading: " .. tostring(NewHdg)) 
+            fs2020_event("HEADING_BUG_SET", NewHdg)
         end
     end
 
-    hdg_dial = dial_add("hdg_knob.png", 47,340,80,80,3, hdg_turn)
+    --[[
+    function hdg_turn_outer( direction)
+        if direction ==  -1 then
+            NewHdg = HDG_Degrees -10
+            if NewHdg < 1 then
+                NewHdg = 360 + NewHdg 
+            end            
+            print("Heading Degrees CCW: " .. tostring(HDG_Degrees))
+            print("New Heading: " .. tostring(NewHdg)) 
+            fs2020_event("HEADING_BUG_SET", NewHdg)
+        elseif direction == 1 then
+            NewHdg = HDG_Degrees + 10
+            if NewHdg > 360 then
+                NewHdg = 0 + (NewHdg - 360)
+            end 
+            print("Heading Degrees CW: " .. tostring(HDG_Degrees))
+            print("New Heading: " .. tostring(NewHdg)) 
+            fs2020_event("HEADING_BUG_SET", NewHdg)
+        end
+    end
+    --]]
+
+    hdg_dial = dial_add("hdg_knob.png", 47,340,80,80,3, hdg_turn_inner)
+    --hdg_dial = dial_add("hdg_knob.png", 67,360,40,40,10, hdg_turn_inner)
     dial_click_rotate( hdg_dial, 6)
 
     function hdg_click()--_hdg_down
