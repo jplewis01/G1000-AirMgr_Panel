@@ -3,6 +3,8 @@ G1000 ENABLEMENT HOW-TO GUIDE.
 If you have  been suffering with the stock and limited functionality and have been waiting impatiently for the ASOBO Glass Cockpit updates. 
 I have an alternative solution that provides the functionality you want and need.
 
+tyo make best use of this Air Manager Panel you will also need the MOBIFLIGHT Events WASM module installed into you community folder and also highly recommended is the Working Title G1000 Mod available at https://github.com/Working-Title-MSFS-Mods/fspackages
+
 MobiFlight Installation [Updated 01-09-2021]
 MobiFlight installation / integration is as easy as downloading and install the MobiFlight zip file from https://www.mobiflight.com 239. 
 As of this writing you need at least ver. 7.10.0
@@ -22,15 +24,15 @@ Relaunch MSFS 2020
 Configure Flight-Stream-Deck with newly supported events 46, courtesy of MobiFlight! They are like the normal SDK events, except the wasm module in the community folder interacts with the gauges/instruments directly when receiving them.
 That’s it, integration done!
 
-A little bit of background to help explain the module. Microsoft have changed the way they do new Addons for FS2020 and now use Web Assemblies. This event module integrates into FS2020 itself and extends the events list that are supported via SimConnect, SimConnect is really just a way to communicate between the Sim and external software and hardware. Don’t be at all surprised to find future Asobo extensions to use the same technique.
+A little bit of background to help explain the module. Microsoft have changed the way they do new Addons for FS2020 and now use Web Assemblies. This event module integrates into FS2020 itself and extends the events list that are supported via SimConnect, SimConnect is really just a way to communicate between the Sim and external software and hardware. Don’t be at all surprised to find future Asobo extensions use the same technique.
 
-Other tools I use
+Other tools I use:
 
-FSUIPC7 Pretty much only used to see what events are triggered
+-FSUIPC7 Pretty much only used to see what events are triggered
 
-VS Code with LUA extensions for LUA editing though you could use Notepad ++ if you like.
+-VS Code with LUA extensions for LUA editing though you could use Notepad ++ if you like.
 
-New MobiSoft Events.
+-New MobiSoft Events.
 
 There are a couple of ways to get the list of new events that relate to to the various Glass Cockpit versions.
 
