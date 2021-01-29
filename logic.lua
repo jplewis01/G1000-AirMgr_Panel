@@ -118,9 +118,9 @@ end
             end 
         elseif direction == 1 then
             if g_unitpos == "1" then
-                fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Small_DEC")    
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Small_INC")    
             elseif  g_unitpos == "3" then
-                fs2020_event("MOBIFLIGHT.AS1000_MFD_NAV_Small_DEC")
+                fs2020_event("MOBIFLIGHT.AS1000_MFD_NAV_Small_INC")
             end
         end
     end
