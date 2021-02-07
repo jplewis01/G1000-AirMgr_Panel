@@ -70,8 +70,15 @@ end
         return gpsbool
     end
 
+    function ap_heading_bug_callback(heading)   
+        HDG_Degrees = heading
+        --print("CB Heading:" .. tostring(heading))
+        return HDG_Degrees
+    end
+
     fs2020_variable_subscribe("AUTOPILOT NAV SELECTED", "Number", nav_selected_callback)
     fs2020_variable_subscribe("GPS DRIVES NAV1", "boolean", gps_selected_callback)
+    fs2020_variable_subscribe("AUTOPILOT HEADING LOCK DIR", "Degrees", ap_heading_bug_callback)
 --End of GPS Selected
 
 -- NAV Radio Functions
@@ -81,56 +88,92 @@ end
         fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Switch")
         sound_play(click_snd)
     end
-
     button_add(nil,"ff_button.png", 102,107,50,32, nav_ff)
 
     -- Nav Radio Knob
     function nav_outer_turn( direction)
         if direction ==  -1 then
-            --fs2020_event("NAV1_RADIO_WHOLE_DEC")
-            fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Large_DEC")
+            if g_unitpos == "1" then
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Large_DEC")
+            elseif  g_unitpos == "3" then
+                fs2020_event("MOBIFLIGHT.AS1000_MFD_NAV_Large_DEC")            
+            end    
         elseif direction == 1 then
-            --fs2020_event("NAV1_RADIO_WHOLE_INC")
-            fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Large_INC")            
+            if g_unitpos == "1" then
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Large_INC")
+            elseif  g_unitpos == "3" then
+                fs2020_event("MOBIFLIGHT.AS1000_MFD_NAV_Large_INC")            
+                end                        
         end
     end
-
     nav_dial_outer = dial_add("plain_knob_outer.png", 47,173,79,79, nav_outer_turn)
     dial_click_rotate(nav_dial_outer, 6)
 
     function nav_inner_turn( direction)
         if direction ==  -1 then
-            fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Small_DEC")
-            --fs2020_event("NAV1_RADIO_FRACT_DEC")
+            if g_unitpos == "1" then
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Small_DEC")    
+            elseif  g_unitpos == "3" then
+                fs2020_event("MOBIFLIGHT.AS1000_MFD_NAV_Small_DEC")
+            end 
         elseif direction == 1 then
-            fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Small_INC")        
-            --fs2020_event("NAV1_RADIO_FRACT_INC")
+            if g_unitpos == "1" then
+                fs2020_event("MOBIFLIGHT.AS1000_PFD_NAV_Small_INC")    
+            elseif  g_unitpos == "3" then
+                fs2020_event("MOBIFLIGHT.AS1000_MFD_NAV_Small_INC")
+            end
         end
     end
-
     nav_dial_inner = dial_add("plain_knob_inner.png", 63,189,47,47, nav_inner_turn)
     dial_click_rotate(nav_dial_outer, 6)
 
     --Selected Nav - 1 or 2
         function nav_swap_click()
             if g_unitpos == "1" then
-                fs2020_event("Mobiflight.AS1000_PFD_NAV_Push") 
-                --fs2020_event("NAV1_RADIO_SWAP") -- Use this to swap active radio 
-                sound_play(click_snd)
-            elseif g_unitpos == "3" then
-                fs2020_event("Mobiflight.AS1000_MFD_NAV_Push") 
-                --fs2020_event("NAV1_RADIO_SWAP") -- Use this to swap active radio 
-                sound_play(click_snd)
+                fs2020_event("Mobiflight.AS1000_PFD_NAV_Push")  
+            elseif  g_unitpos == "3" then
+                fs2020_event("Mobiflight.AS1000_MFD_NAV_Push")
             end
+        sound_play(click_snd)
         end    
         button_add(nil,nil, 75,204,13,13, nav_swap_click)
     --End Selected NAV
 
     -- NAV VOL Knob add click to select ????
+    function nav_vol_turn( direction)
+        if direction ==  -1 then
+            if g_unitpos == "1" then
+                print("in PFD NAV Vol turn CCW")
+                fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_1_DEC")
+                fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_2_DEC")     
+            elseif  g_unitpos == "3" then
+                fs2020_event("MOBIFLIGHT_AS1000_MFD_VOL_1_DEC")
+                fs2020_event("MOBIFLIGHT_AS1000_MFD_VOL_2_DEC")
+            end 
+        elseif direction == 1 then
+            if g_unitpos == "1" then
+                print("in PFD NAV Vol turn CW")
+                fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_1_INC")
+                fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_2_INC")    
+            elseif  g_unitpos == "3" then
+                fs2020_event("MOBIFLIGHT_AS1000_MFD_VOL_1_INC")
+                fs2020_event("MOBIFLIGHT_AS1000_MFD_VOL_2_INC")
+            end
+            sound_play(click_snd)
+        end
+    end
+    nav_vol_dial_turn = dial_add("vol_knob.png", 62,44,50,50, nav_vol_turn)
+    
     function nav_vol_press()
-        fs2020_event("Mobiflight.AS1000_PFD_NAV_Push") 
-    end 
-    navvol_dial = button_add("vol_knob.png","vol_knob_prs.png", 62,44,50,50, nav_vol_press)
+        if g_unitpos == "1" then
+            print("in PFD Nav Vol Press")
+            fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_1_INC")
+        elseif  g_unitpos == "3" then
+            fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_1_INC")
+        end
+        sound_play(click_snd)
+    end
+    --button_add(nil,nil, 67,49,40,40, nav_vol_press) 
 -- End NAV Radio
 
 -- COM Radio Functions
@@ -140,41 +183,49 @@ end
         --fs2020_event("COM_STBY_RADIO_SWAP")  
         sound_play(click_snd)
     end
-
     button_add(nil,"ff_button.png", 1260,107,50,32, com_ff)
 
     -- COM Radio Knob 
         function com_outer_turn( direction)
             if direction ==  -1 then
-                fs2020_event("Mobiflight.AS1000_PFD_COM_Large_DEC")
-                --fs2020_event("COM_RADIO_WHOLE_DEC")
+                if g_unitpos == "1" then
+                    fs2020_event("Mobiflight.AS1000_PFD_COM_Large_DEC")
+                elseif  g_unitpos == "3" then
+                    fs2020_event("Mobiflight.AS1000_MFD_COM_Large_DEC")                    
+                end
             elseif direction == 1 then
-                fs2020_event("Mobiflight.AS1000_PFD_COM_Large_INC")
-                --fs2020_event("COM_RADIO_WHOLE_INC")
+                if g_unitpos == "1" then
+                    fs2020_event("Mobiflight.AS1000_PFD_COM_Large_INC")
+                elseif  g_unitpos == "3" then
+                    fs2020_event("Mobiflight.AS1000_MFD_COM_Large_INC")                    
+                end
             end
-        end
-        
+        end        
         com_dial_outer = dial_add("plain_knob_outer.png", 1283,173,79,79, com_outer_turn)
-        dial_click_rotate( com_dial_outer, 6)
+         dial_click_rotate( com_dial_outer, 6)
 
         function com_inner_turn( direction)
             if direction ==  -1 then
-                fs2020_event("Mobiflight.AS1000_PFD_COM_Small_DEC")
-                --fs2020_event("COM_RADIO_FRACT_DEC")
+                if g_unitpos == "1" then
+                    fs2020_event("Mobiflight.AS1000_PFD_COM_Small_DEC")
+                elseif  g_unitpos == "3" then
+                    fs2020_event("Mobiflight.AS1000_MFD_COM_Small_DEC")                   
+                end            
             elseif direction == 1 then
-                fs2020_event("Mobiflight.AS1000_PFD_COM_Small_INC")
-                --fs2020_event("COM_RADIO_FRACT_INC")
+                if g_unitpos == "1" then
+                    fs2020_event("Mobiflight.AS1000_PFD_COM_Small_INC")
+                elseif  g_unitpos == "3" then
+                    fs2020_event("Mobiflight.AS1000_MFD_COM_Small_INC")                   
+                end 
             end
         end
-
         com_dial_inner = dial_add("plain_knob_inner.png", 1299,189,47,47, com_inner_turn)
         dial_click_rotate( com_dial_inner, 6)
 
-        --Selected Nav - 1 or 2        
+        --Selected COM - 1 or 2        
             function com_swap_click()
                 if g_unitpos == "1" then
-                    fs2020_event("Mobiflight.AS1000_PFD_COM_Push")     
-                    --fs2020_event("COM_STBY_RADIO_SWAP") 
+                    fs2020_event("Mobiflight.AS1000_PFD_COM_Push")      
                     sound_play(click_snd)
                 elseif g_unitpos == "3" then
                     fs2020_event("Mobiflight.AS1000_MFD_COM_Push")     
@@ -183,14 +234,45 @@ end
                 end
             end
         -- End Selected Nav
-
         button_add(nil,nil, 1313,204,13,13, com_swap_click)
 
-        -- COM VOL Knob add click to select ????
+        -- COM VOL Knob add click to select ???? 
             function com_vol_press()
-                fs2020_event("Mobiflight.AS1000_PFD_COM_Push") 
+                if g_unitpos == "1" then
+                    print("in PFD Nav Vol Press")
+                    fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_1_INC")
+                elseif  g_unitpos == "3" then
+                    fs2020_event("MOBIFLIGHT_AS1000_MFD_VOL_1_INC")
+                end
+                sound_play(click_snd)
             end
-    comvol_dial = button_add("vol_knob.png","vol_knob_prs.png", 1299,43,50,50, com_vol_press)
+            --button_add(nil,nil, 1304,48,40,40, nav_vol_press) 
+
+            function com_vol_turn()
+                if direction ==  -1 then
+                    if g_unitpos == "1" then
+                        --print("in PFD COM Vol turn CCW")
+                        fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_1_DEC")
+                        fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_2_DEC")     
+                    elseif  g_unitpos == "3" then
+                        --print("in MFD COM Vol turn CW")
+                        fs2020_event("MOBIFLIGHT_AS1000_MFD_VOL_1_DEC")
+                        fs2020_event("MOBIFLIGHT_AS1000_MFD_VOL_2_DEC")
+                    end 
+                elseif direction == 1 then
+                    if g_unitpos == "1" then
+                        --print("in MFD NAV Vol turn CW")
+                        fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_1_INC")
+                        fs2020_event("MOBIFLIGHT_AS1000_PFD_VOL_2_INC")    
+                    elseif  g_unitpos == "3" then
+                        fs2020_event("MOBIFLIGHT_AS1000_MFD_VOL_1_INC")
+                        fs2020_event("MOBIFLIGHT_AS1000_MFD_VOL_2_INC")
+                    end
+                    sound_play(click_snd)
+                end
+            end
+            com_vol_dial_turn = dial_add("vol_knob.png", 1299,43,50,50, com_vol_turn)    
+            --comvol_dial = button_add("vol_knob.png","vol_knob_prs.png", 1299,43,50,50, com_vol_press)
 -- End COM Radio
 
 -- Altitude Target Knob
@@ -199,7 +281,6 @@ end
         TargetAlt = altitude
         return TargetAlt 
     end
-
     fs2020_variable_subscribe("AUTOPILOT ALTITUDE LOCK VAR", "feet", alt_callback)
 
     function alt_large_callback(direction)
@@ -222,7 +303,6 @@ end
         end
         fs2020_event("AP_ALT_VAR_SET_ENGLISH",TargetAlt)       
     end
-
     alt_dial_outer = dial_add("plain_knob_outer.png", 47,793,79,79, alt_large_callback)
     dial_click_rotate( alt_dial_outer, 6)
 
@@ -231,15 +311,54 @@ end
 -- End Altitude Target Knob
 
 -- Heading Knob
-    function hdg_turn( direction)
+    function hdg_turn_inner( direction)
         if direction ==  -1 then
-            fs2020_event("HEADING_BUG_DEC")
+            HDG_Degrees = HDG_Degrees - 1
+            if HDG_Degrees <= 0 then
+                NewHdg = 360
+            else
+                NewHdg = HDG_Degrees
+            end
+            print("Heading Degrees CCW: " .. tostring(HDG_Degrees))
+            print("New Heading: " .. tostring(NewHdg)) 
+            fs2020_event("HEADING_BUG_SET", NewHdg)
         elseif direction == 1 then
-            fs2020_event("HEADING_BUG_INC")
+            HDG_Degrees = HDG_Degrees + 1
+            if HDG_Degrees >= 361 then
+                NewHdg = HDG_Degrees - 360
+            else
+                NewHdg = HDG_Degrees
+            end
+            print("Heading Degrees CW: " .. tostring(HDG_Degrees))
+            print("New Heading: " .. tostring(NewHdg)) 
+            fs2020_event("HEADING_BUG_SET", NewHdg)
         end
     end
 
-    hdg_dial = dial_add("hdg_knob.png", 47,340,80,80,3, hdg_turn)
+    --[[
+    function hdg_turn_outer( direction)
+        if direction ==  -1 then
+            NewHdg = HDG_Degrees -10
+            if NewHdg < 1 then
+                NewHdg = 360 + NewHdg 
+            end            
+            print("Heading Degrees CCW: " .. tostring(HDG_Degrees))
+            print("New Heading: " .. tostring(NewHdg)) 
+            fs2020_event("HEADING_BUG_SET", NewHdg)
+        elseif direction == 1 then
+            NewHdg = HDG_Degrees + 10
+            if NewHdg > 360 then
+                NewHdg = 0 + (NewHdg - 360)
+            end 
+            print("Heading Degrees CW: " .. tostring(HDG_Degrees))
+            print("New Heading: " .. tostring(NewHdg)) 
+            fs2020_event("HEADING_BUG_SET", NewHdg)
+        end
+    end
+    --]]
+
+    hdg_dial = dial_add("hdg_knob.png", 47,340,80,80,3, hdg_turn_inner)
+    --hdg_dial = dial_add("hdg_knob.png", 67,360,40,40,10, hdg_turn_inner)
     dial_click_rotate( hdg_dial, 6)
 
     function hdg_click()--_hdg_down
