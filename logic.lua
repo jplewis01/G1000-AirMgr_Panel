@@ -382,6 +382,7 @@ end
         end
 
         function aspd_callback(asindicated)
+            --print ("asindicated: " ..tostring(asindicated))
             AirspeedIndicated = asindicated  
         return AirspeedIndicated    
         end
@@ -483,7 +484,10 @@ end
         if VSenabled then
             fs2020_event("AP_VS_VAR_INC")
         elseif FLCState then 
-            fs2020_event("AP_SPD_VAR_INC")
+            -- Create a hard Airspeed Set event
+            print ("Nose Up - asindicated: " ..tostring(asindicated))
+            --fs2020_event("AP_SPD_VAR_INC")  -- Leave this commented place in case it ever gets flipped with Nose DN in FS Code again
+            fs2020_event("AP_SPD_VAR_DEC")
         end
         sound_play(click_snd)
     end
@@ -494,8 +498,11 @@ end
     function nosdn_click()
         if VSenabled then
             fs2020_event("AP_VS_VAR_DEC")
-        elseif FLCState then 
-            fs2020_event("AP_SPD_VAR_DEC")
+        elseif FLCState then
+            -- Create a hard Airspeed Set event 
+            print ("Nose Dn - asindicated: " ..tostring(asindicated))
+            --fs2020_event("AP_SPD_VAR_DEC") -- Leave this commented place in case it ever gets flipped with Nose UP up in FS Code again
+            fs2020_event("AP_SPD_VAR_INC")
         end 
         sound_play(click_snd)
     end
